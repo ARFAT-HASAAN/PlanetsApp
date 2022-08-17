@@ -5,47 +5,47 @@ import {
   FlatList,
   StatusBar,
   Pressable,
+  TextInput,
 } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import PlanetHeader from '../components/planetHeader'
 import { colors } from '../Theme/colors'
 import { PLANET_LIST } from '../FakeData/planet-list'
-import Text from '../components/Text'
 import { spacing } from '../Theme/spacing'
-import { AntDesign } from '@expo/vector-icons'
+import Press from '../components/Press'
 
-export default function Home({ navigation }) {
+export default function Home() {
+  const [Data, setData] = useState(PLANET_LIST)
+
+  const ValueSetter = (text) => {
+    const searchText = text.toLowerCase()
+    console.log('Search text -->', searchText)
+    const Earths = Data.filter((earth) =>
+      earth.name.toLowerCase().startsWith(searchText),
+    )
+    console.log(Earths)
+    setData(Earths)
+  }
+
+  const RenderItem = ({ item, index }) => {
+    return <Press items={item} />
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <PlanetHeader />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Type the planet name"
+        placeholderTextColor={colors.grey}
+        onChangeText={(text) => ValueSetter(text)}
+      />
+
       <FlatList
-        contentContainerStyle={styles.list}
-        data={PLANET_LIST}
+        data={Data}
+        renderItem={RenderItem}
         keyExtractor={(item) => item.name}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        renderItem={({ item, index }) => {
-          return (
-            <Pressable
-              onPress={() => {
-                navigation.navigate('Details')
-              }}
-            >
-              <View style={styles.Item_container}>
-                <View style={styles.item}>
-                  <View
-                    style={[styles.circle, { backgroundColor: item.color }]}
-                  />
-                  <Text preset="bold"> {item.name.toUpperCase()} </Text>
-                </View>
-                <View>
-                  <Text>
-                    <AntDesign name="right" size={18} color={colors.white} />
-                  </Text>
-                </View>
-              </View>
-            </Pressable>
-          )
-        }}
       />
     </SafeAreaView>
   )
@@ -84,5 +84,14 @@ const styles = StyleSheet.create({
   separator: {
     borderBottomColor: colors.white,
     borderBottomWidth: 0.3,
+  },
+
+  input: {
+    margin: spacing[5],
+    paddingVertical: spacing[4],
+    borderWidth: 1,
+    borderBottomColor: colors.white,
+    color: colors.grey,
+    fontSize: 18,
   },
 })
